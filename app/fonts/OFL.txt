@@ -1,8 +1,22 @@
-Copyright 2020 The Anton Project Authors (https://github.com/googlefonts/AntonFont.git)
+Fonts shipped with Sundown Racket Cover Studio
+================================================
 
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
-This license is copied below, and is also available with a FAQ at:
-http://scripts.sil.org/OFL
+This folder ships three fonts, all under the SIL Open Font License
+Version 1.1 (copied in full below):
+
+- Anton-Regular.ttf — Anton, by The Anton Project Authors
+  (Copyright 2020, https://github.com/googlefonts/AntonFont.git)
+- Pacifico-Regular.ttf — Pacifico, by Vernon Adams
+- BebasNeue-Regular.ttf — Bebas Neue, by Ryoichi Tsunekawa (Dharma Type)
+
+The studio uses them for its cover lettering only: Anton for the chrome
+title, Pacifico for the neon script subtitle, Bebas Neue for name tags,
+the tagline, the review strip and the billing block. None of them is a
+Rockstar Games font, and no game artwork or logo is shipped with the app.
+
+Each font is free to use, study, modify and redistribute under the
+license below, as long as it is not sold by itself and this license
+travels with it.
 
 
 -----------------------------------------------------------
@@ -18,7 +32,7 @@ with others.
 
 The OFL allows the licensed fonts to be used, studied, modified and
 redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded, 
+fonts, including any derivative works, can be bundled, embedded,
 redistributed and/or sold with any software provided that any reserved
 names are not used by derivative works. The fonts and derivatives,
 however, cannot be released under any other type of license. The
