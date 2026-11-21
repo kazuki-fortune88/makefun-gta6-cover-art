@@ -2,45 +2,52 @@
 // luminance through a Vice City colour ramp, keeping some of the photo's own
 // colour so faces stay faces. Graded panels are cached per photo, grade and
 // width, so dragging a crop only re-samples the graded bitmap.
+//
+// Five grades ship with the studio: Sunset (the warm default), Neon (hot
+// pink after dark), Vice Teal (turquoise mornings), Palm Gold (a honeyed
+// afternoon) and Noir (a black-and-white crime still).
 
 /** A grade: a luminance ramp (dark to light) plus a wash tint for the grade. */
 export const GRADES = {
   sunset: {
     label: 'Sunset',
-    ramp: ['#160a2e', '#3d1150', '#8a2360', '#d6336c', '#ff6a3d', '#ffb347', '#ffe9a3'],
+    ramp: ['#150826', '#3d1150', '#8a2360', '#d6336c', '#ff6a3d', '#ffb347', '#ffe9a3'],
     wash: 'rgba(255, 110, 60, 0.10)',
   },
   neon: {
     label: 'Neon',
-    ramp: ['#04041a', '#160a4d', '#5b1a8a', '#c2187a', '#ff2e88', '#ff7ad9', '#8ef6ff'],
+    ramp: ['#03031a', '#160a4d', '#5b1a8a', '#c2187a', '#ff2e88', '#ff7ad9', '#8ef6ff'],
     wash: 'rgba(255, 46, 136, 0.10)',
   },
   vice: {
     label: 'Vice Teal',
-    ramp: ['#03222b', '#07333d', '#0e5f6b', '#c2185b', '#ff5e8a', '#ffb347', '#ffe9a3'],
+    ramp: ['#02222b', '#07333d', '#0e5f6b', '#c2185b', '#ff5e8a', '#ffb347', '#ffe9a3'],
     wash: 'rgba(20, 180, 190, 0.08)',
   },
   palm: {
     label: 'Palm Gold',
-    ramp: ['#0b1f14', '#123f27', '#2e8b57', '#7fb069', '#e9c46a', '#ffd166', '#fff3c4'],
+    ramp: ['#0a1f14', '#123f27', '#2e8b57', '#7fb069', '#e9c46a', '#ffd166', '#fff3c4'],
     wash: 'rgba(255, 200, 80, 0.08)',
   },
   noir: {
     label: 'Noir',
-    ramp: ['#050505', '#1a1a22', '#3d3d4d', '#6b6b7a', '#9a9aad', '#d5d5e0', '#f5f5ff'],
+    ramp: ['#040404', '#1a1a22', '#3d3d4d', '#6b6b7a', '#9a9aad', '#d5d5e0', '#f5f5ff'],
     wash: 'rgba(120, 120, 160, 0.06)',
   },
 };
 
 export const GRADE_IDS = Object.keys(GRADES);
 
+/** Turns a hex colour from a grade ramp into an [r, g, b] triple. */
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
 /** Builds a 256-entry RGB lookup table from a grade's ramp (dark to light). */
 export function buildGradientLut(gradeId) {
   const grade = GRADES[gradeId] ?? GRADES.sunset;
-  const stops = grade.ramp.map((hex) => {
-    const n = parseInt(hex.slice(1), 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  });
+  const stops = grade.ramp.map(hexToRgb);
   const lut = new Uint8Array(256 * 3);
   for (let i = 0; i < 256; i++) {
     const t = (i / 255) * (stops.length - 1);
@@ -53,13 +60,16 @@ export function buildGradientLut(gradeId) {
   return lut;
 }
 
-/** Applies a grade's lookup table to an image's pixels in place (ImageData). */
+/**
+ * Applies a grade's lookup table to an image's pixels in place (ImageData):
+ * 65% ramp colour, 35% the photo's own colour, so the grade lands but the
+ * people in the photo still look like themselves.
+ */
 export function applyGradientMap(imageData, lut) {
   const d = imageData.data;
   for (let i = 0; i < d.length; i += 4) {
     const lum = Math.round(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]);
     const k = lum * 3;
-    // 65% ramp colour, 35% the photo's own colour: the grade, but faces stay faces.
     d[i] = Math.round(lut[k] * 0.65 + d[i] * 0.35);
     d[i + 1] = Math.round(lut[k + 1] * 0.65 + d[i + 1] * 0.35);
     d[i + 2] = Math.round(lut[k + 2] * 0.65 + d[i + 2] * 0.35);

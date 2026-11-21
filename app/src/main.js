@@ -1,7 +1,8 @@
-// Neon Coast Cover Studio's editor: photos in, a cover out. Wires the page —
-// photo tray, layout and grade pickers, caption editing, per-panel crop and
-// position by drag and zoom, undo/redo, and one-click export in every post size.
-import { drawCover, renderCoverToSize, ensureCoverFonts, defaultPanels } from './cover.js';
+// Sundown Racket Cover Studio's editor: photos in, a cover out. Wires the page —
+// photo tray, layout and grade pickers, caption and poster-furniture editing,
+// per-panel crop, position and name tag by drag and zoom, undo/redo, and
+// one-click export in every post size.
+import { drawCover, renderCoverToSize, ensureCoverFonts, defaultPanels, defaultNameTags } from './cover.js';
 import { LAYOUTS, LAYOUT_IDS, layoutCover } from './layouts.js';
 import { GRADES, GRADE_IDS } from './grades.js';
 import { runShot } from './shots.js';
@@ -35,13 +36,17 @@ let undoStack = [];
 let redoStack = [];
 
 let state = {
-  layout: 'grid9',
+  layout: 'hero',
   grade: 'sunset',
-  title: 'NEON COAST',
-  subtitle: 'vice city nights',
+  title: 'SUNDOWN RACKET',
+  subtitle: 'Paid in Sunsets',
+  tagline: 'Everyone wants a cut of the sunset',
+  reviewQuote: '“The sunset never stood a chance.”',
+  reviewSource: 'VICE CITY GAZETTE',
   badge: 'VICE CITY',
-  heat: 4,
+  heat: 5,
   panels: defaultPanels(),
+  nameTags: defaultNameTags(),
 };
 
 function snapshot() {
@@ -133,8 +138,8 @@ function exportSize(id) {
 }
 
 function exportAllSizes() {
-  for (const id of ['square', 'portrait', 'landscape', 'story']) exportSize(id);
-  status.textContent = 'Exported all four sizes — square, portrait, landscape and story';
+  for (const id of ['square', 'portrait', 'landscape']) exportSize(id);
+  status.textContent = 'Exported all three sizes — square 1080x1080, portrait 1080x1350, landscape 1920x1080';
 }
 
 // ---- photo tray -----------------------------------------------------------
@@ -172,14 +177,21 @@ function renderPhotoTray() {
 
 // ---- panel inspector ------------------------------------------------------
 
+function panelTag() {
+  return state.nameTags[selectedPanel] ?? '';
+}
+
 function updatePanelInfo() {
   const slot = state.panels[selectedPanel];
   if (!slot) return;
-  panelInfo.textContent = `Panel ${selectedPanel + 1} — ${photos[slot.photo]?.name ?? 'no photo'} · zoom ${slot.zoom.toFixed(2)}x`;
+  const tag = panelTag();
+  panelInfo.textContent = `Panel ${selectedPanel + 1} — ${tag ? `${tag} · ` : ''}${photos[slot.photo]?.name ?? 'no photo'} · zoom ${slot.zoom.toFixed(2)}x`;
   const sel = document.getElementById('panel-photo');
   if (sel.value !== String(slot.photo)) sel.value = String(slot.photo);
   const zoom = document.getElementById('panel-zoom');
   if (document.activeElement !== zoom) zoom.value = String(Math.round(slot.zoom * 100));
+  const tagInput = document.getElementById('panel-tag');
+  if (document.activeElement !== tagInput) tagInput.value = tag;
 }
 
 function selectPanel(i) {
@@ -257,6 +269,10 @@ function buildPickers() {
       if (state.layout === id) return;
       pushUndo();
       state.layout = id;
+      // A layout with fewer panels than the current state keeps only the
+      // panels it draws; the hero layout's seven slots are the full set.
+      state.panels = defaultPanels();
+      state.nameTags = defaultNameTags();
       selectedPanel = 0;
       syncControls();
       redraw();
@@ -306,30 +322,31 @@ function syncControls() {
   }
   document.getElementById('caption').value = state.title;
   document.getElementById('subtitle').value = state.subtitle;
+  document.getElementById('tagline').value = state.tagline;
+  document.getElementById('review-quote').value = state.reviewQuote;
+  document.getElementById('review-source').value = state.reviewSource;
   document.getElementById('badge').value = state.badge;
   document.getElementById('heat').value = String(state.heat);
   document.getElementById('heat-value').textContent = `${state.heat} / 5`;
 }
 
+/** Binds a text field to a state key: live redraw, undo on commit. */
+function bindText(id, key) {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    state[key] = el.value;
+    redraw();
+  });
+  el.addEventListener('change', pushUndo);
+}
+
 function bindControls() {
-  const caption = document.getElementById('caption');
-  caption.addEventListener('input', () => {
-    state.title = caption.value;
-    redraw();
-  });
-  caption.addEventListener('change', pushUndo);
-  const subtitle = document.getElementById('subtitle');
-  subtitle.addEventListener('input', () => {
-    state.subtitle = subtitle.value;
-    redraw();
-  });
-  subtitle.addEventListener('change', pushUndo);
-  const badge = document.getElementById('badge');
-  badge.addEventListener('input', () => {
-    state.badge = badge.value;
-    redraw();
-  });
-  badge.addEventListener('change', pushUndo);
+  bindText('caption', 'title');
+  bindText('subtitle', 'subtitle');
+  bindText('tagline', 'tagline');
+  bindText('review-quote', 'reviewQuote');
+  bindText('review-source', 'reviewSource');
+  bindText('badge', 'badge');
   const heat = document.getElementById('heat');
   heat.addEventListener('input', () => {
     state.heat = Number(heat.value);
@@ -362,6 +379,11 @@ function bindControls() {
     state.panels[selectedPanel].photo = Number(e.target.value);
     redraw();
   });
+  document.getElementById('panel-tag').addEventListener('input', (e) => {
+    state.nameTags[selectedPanel] = e.target.value;
+    redraw();
+  });
+  document.getElementById('panel-tag').addEventListener('change', pushUndo);
   document.getElementById('panel-zoom').addEventListener('input', (e) => {
     state.panels[selectedPanel].zoom = Number(e.target.value) / 100;
     redraw();
@@ -369,7 +391,7 @@ function bindControls() {
   document.getElementById('panel-zoom').addEventListener('change', pushUndo);
   document.getElementById('panel-reset').addEventListener('click', () => {
     pushUndo();
-    state.panels[selectedPanel] = { photo: selectedPanel % Math.max(1, photos.length), zoom: 1, ox: 0, oy: 0 };
+    state.panels[selectedPanel] = defaultPanels()[selectedPanel] ?? { photo: 0, zoom: 1, ox: 0, oy: 0 };
     redraw();
   });
   document.getElementById('panel-fill-all').addEventListener('click', () => {

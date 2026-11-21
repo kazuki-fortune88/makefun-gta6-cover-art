@@ -1,9 +1,15 @@
-// Layout geometry for the cover engine: every layout is a function of the canvas
-// size, so the same cover reflows across the square, portrait, landscape and
-// story post sizes. Each layout returns panel rects plus the title-block rect.
+// Cover geometry for Sundown Racket Cover Studio: every layout is a function
+// of the canvas size, so the same cover reflows across square, portrait,
+// landscape and story post sizes. Each layout returns panel rects plus the
+// title-block rect and the style the title block should be drawn in.
+//
+// The default layout is `hero`: one big close-up panel in the middle, ringed
+// by six smaller panels of deliberately different sizes — the magazine-cover
+// look of a GTA poster, where no two surrounding panels share a height.
 
-/** The five layouts, in the order the picker shows them. */
+/** The six layouts, in the order the picker shows them (hero first). */
 export const LAYOUTS = {
+  hero: { label: 'Hero + Cast', panels: 7 },
   grid4: { label: 'Four-Panel Grid', panels: 4 },
   hero3: { label: 'Hero + Three', panels: 4 },
   bleed: { label: 'Full-Bleed', panels: 1 },
@@ -31,10 +37,51 @@ function gridPanels(w, h, cols, rows, area) {
   return panels;
 }
 
-function photoArea(w, h, titleH) {
+function photoArea(w, h, titleH, topH = 0) {
   const m = Math.round(w * 0.018);
   const gutter = Math.round(w * 0.012);
-  return { x: m, y: m, w: w - m * 2, h: h - titleH - m * 2, gutter };
+  return { x: m, y: topH + m, w: w - m * 2, h: h - titleH - topH - m * 2, gutter };
+}
+
+/**
+ * Hero + cast: the review strip sits at the very top, the title band at the
+ * foot, and between them a big centre hero panel flanked by two columns of
+ * three panels each. The two columns use different row-height splits, so the
+ * surrounding panels are visibly varied in size instead of a uniform grid.
+ * Panel order: 0 hero, 1-3 left column top to bottom, 4-6 right column.
+ */
+export function layoutHeroCast(w, h) {
+  const titleH = Math.round(h * 0.27);
+  const reviewH = Math.round(h * 0.055);
+  const area = photoArea(w, h, titleH, reviewH);
+  const g = area.gutter;
+  const heroW = area.w * 0.36;
+  const sideW = (area.w - heroW - g * 2) / 2;
+  const leftX = area.x;
+  const heroX = area.x + sideW + g;
+  const rightX = heroX + heroW + g;
+  // Uneven row splits: left column tall-short-medium, right short-medium-tall.
+  const leftSplit = [0.36, 0.28, 0.36];
+  const rightSplit = [0.3, 0.34, 0.36];
+  const panels = [{ x: heroX, y: area.y, w: heroW, h: area.h, rot: 0, hero: true }];
+  let y = area.y;
+  for (let i = 0; i < 3; i++) {
+    const ph = (area.h - g * 2) * leftSplit[i];
+    panels.push({ x: leftX, y, w: sideW, h: ph, rot: 0 });
+    y += ph + g;
+  }
+  y = area.y;
+  for (let i = 0; i < 3; i++) {
+    const ph = (area.h - g * 2) * rightSplit[i];
+    panels.push({ x: rightX, y, w: sideW, h: ph, rot: 0 });
+    y += ph + g;
+  }
+  return {
+    panels,
+    title: { x: 0, y: h - titleH, w, h: titleH, align: 'center' },
+    titleStyle: 'hero',
+    review: { x: 0, y: 0, w, h: reviewH },
+  };
 }
 
 /** Four-panel grid: a 2x2 photo wall over a halftone title band. */
@@ -112,6 +159,7 @@ export function layoutTiltedSnapshot(w, h) {
 }
 
 const LAYOUT_FNS = {
+  hero: layoutHeroCast,
   grid4: layoutGridFour,
   hero3: layoutHeroThree,
   bleed: layoutFullBleed,
@@ -121,6 +169,6 @@ const LAYOUT_FNS = {
 
 /** Returns the geometry for `layoutId` at canvas size w x h. */
 export function layoutCover(layoutId, w, h) {
-  const fn = LAYOUT_FNS[layoutId] ?? layoutGridNine;
+  const fn = LAYOUT_FNS[layoutId] ?? layoutHeroCast;
   return fn(w, h);
 }
