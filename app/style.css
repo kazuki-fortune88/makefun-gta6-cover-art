@@ -3,7 +3,7 @@
 @font-face { font-family: 'Bebas Neue'; src: url('./fonts/BebasNeue-Regular.ttf') format('truetype'); font-display: swap; }
 
 html, body { margin: 0; min-height: 100%; background: #12081f; color: #f5eef7; font: 15px/1.45 system-ui, sans-serif; }
-.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; background: #1a0b2e; border-bottom: 2px solid #ff2e88; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px; background: linear-gradient(90deg, #1a0b2e, #3d1150 55%, #1a0b2e); border-bottom: 2px solid #ff2e88; }
 .brand { display: flex; align-items: baseline; gap: 10px; }
 .logo { font-family: 'Anton', sans-serif; font-size: 26px; letter-spacing: 1px; background: linear-gradient(90deg, #ffe9a3, #ffb347, #ff5e3a, #ff2e88); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .tag { font-family: 'Pacifico', cursive; color: #ff7ad9; font-size: 16px; }
@@ -21,7 +21,9 @@ h2 { margin: 0 0 8px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; le
 label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 13px; color: #d9c8e8; }
 label .row { display: flex; align-items: center; gap: 10px; }
 input[type=text], select { font: inherit; padding: 8px 10px; border: 1px solid #5b2a72; border-radius: 6px; background: #12081f; color: #f5eef7; }
+input[type=text]:focus, select:focus { outline: 2px solid #ff2e88; outline-offset: 1px; }
 input[type=range] { flex: 1; accent-color: #ff2e88; }
+#panel-tag { text-transform: uppercase; letter-spacing: 1px; font-family: 'Bebas Neue', sans-serif; font-size: 17px; }
 .file-btn { display: block; text-align: center; font-weight: 700; padding: 10px; border: 1px dashed #ff7ad9; border-radius: 8px; cursor: pointer; color: #ff7ad9; }
 .tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
 .thumb { padding: 0; border: 2px solid transparent; border-radius: 6px; overflow: hidden; background: none; }
@@ -30,6 +32,7 @@ input[type=range] { flex: 1; accent-color: #ff2e88; }
 .thumb:hover { border-color: #ff2e88; }
 .picker { display: flex; flex-wrap: wrap; gap: 8px; }
 .picker button { font-size: 13px; padding: 8px 10px; }
+.picker button[data-layout="hero"] { border-color: #ffb347; }
 #grade-picker button::before { content: ''; display: block; height: 8px; border-radius: 4px; margin-bottom: 6px; background: var(--sw, #888); }
 .hint { margin: 8px 0 0; font-size: 12.5px; color: #a98fc4; }
 .about { margin: 8px 0 0; font-size: 12.5px; color: #a98fc4; }

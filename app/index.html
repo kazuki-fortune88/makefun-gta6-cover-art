@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Neon Coast Cover Studio — GTA-style cover maker</title>
+<title>Sundown Racket Cover Studio — GTA-style cover maker</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span class="logo">NEON COAST</span><span class="tag">Cover Studio</span></div>
+  <div class="brand"><span class="logo">SUNDOWN RACKET</span><span class="tag">Cover Studio</span></div>
   <div class="actions">
     <button id="undo" type="button">Undo</button>
     <button id="redo" type="button">Redo</button>
@@ -28,6 +28,7 @@
     <section>
       <h2>Layout</h2>
       <div id="layout-picker" class="picker"></div>
+      <p class="hint">Hero + Cast is the poster look: one big close-up in the middle, the cast around it.</p>
     </section>
     <section>
       <h2>Grade</h2>
@@ -35,10 +36,13 @@
     </section>
     <section>
       <h2>Caption</h2>
-      <label>Title<input id="caption" type="text" maxlength="40" value="NEON COAST"></label>
-      <label>Subtitle<input id="subtitle" type="text" maxlength="40" value="vice city nights"></label>
+      <label>Title<input id="caption" type="text" maxlength="40" value="SUNDOWN RACKET"></label>
+      <label>Subtitle<input id="subtitle" type="text" maxlength="40" value="Paid in Sunsets"></label>
+      <label>Tagline<input id="tagline" type="text" maxlength="60" value="Everyone wants a cut of the sunset"></label>
+      <label>Review quote<input id="review-quote" type="text" maxlength="60" value="“The sunset never stood a chance.”"></label>
+      <label>Review source<input id="review-source" type="text" maxlength="30" value="VICE CITY GAZETTE"></label>
       <label>Badge<input id="badge" type="text" maxlength="16" value="VICE CITY"></label>
-      <label>Heat <span class="row"><input id="heat" type="range" min="0" max="5" step="1" value="4"><span id="heat-value">4 / 5</span></span></label>
+      <label>Heat <span class="row"><input id="heat" type="range" min="0" max="5" step="1" value="5"><span id="heat-value">5 / 5</span></span></label>
     </section>
     <section>
       <h2>Size</h2>
@@ -53,11 +57,12 @@
   <aside class="inspector">
     <h2>Selected panel</h2>
     <label>Photo<select id="panel-photo"></select></label>
+    <label>Name tag<input id="panel-tag" type="text" maxlength="24" value="THE DRIVER"></label>
     <label>Zoom<input id="panel-zoom" type="range" min="100" max="300" value="100"></label>
     <button id="panel-reset" type="button">Reset crop</button>
     <button id="panel-fill-all" type="button">Use this photo everywhere</button>
-    <p class="hint">Drag the photo inside a panel to move it. Scroll over a panel to zoom. Click a panel to select it.</p>
-    <p class="about">Neon Coast Cover Studio — an offline cover maker. Photos never leave this machine. Lettering: Anton, Pacifico and Bebas Neue under the SIL Open Font License.</p>
+    <p class="hint">Drag the photo inside a panel to move it. Scroll over a panel to zoom. Click a panel to select it. Edit the name tag to rename the character in that panel.</p>
+    <p class="about">Sundown Racket Cover Studio — an offline cover maker. Photos never leave this machine. Lettering: Anton, Pacifico and Bebas Neue under the SIL Open Font License. No Rockstar artwork, logo or font is used.</p>
   </aside>
 </main>
 <script type="module" src="./src/main.js"></script>
